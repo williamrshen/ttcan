@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+
+# Scraped player cache (regenerated on demand)
+data/
+
+# Local tooling / agent state
+.claude/
+
+# IDE
+.vs/
+.vscode/
+*.user
