@@ -18,9 +18,12 @@ builder.Services.AddHttpClient<ITtcanScraper, TtcanScraper>(client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd("ttcan-api/1.0 (personal learning project)");
 });
 
-// JSON cache store: one shared instance writing under <contentRoot>/data/players.
-builder.Services.AddSingleton<IPlayerStore>(_ =>
-    new JsonPlayerStore(Path.Combine(builder.Environment.ContentRootPath, "data", "players")));
+// JSON cache store. PlayerStorePath env var lets Railway point this at a mounted volume;
+// falls back to <contentRoot>/data/players for local development.
+var storePath = builder.Configuration["PlayerStorePath"] is { Length: > 0 } configured
+    ? configured
+    : Path.Combine(builder.Environment.ContentRootPath, "data", "players");
+builder.Services.AddSingleton<IPlayerStore>(_ => new JsonPlayerStore(storePath));
 
 // Orchestrates store + scraper, computes derived data.
 builder.Services.AddScoped<PlayerService>();
