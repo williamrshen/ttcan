@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Search Canadian table tennis player ratings, matches, head-to-head records, and activity from the TTCAN ratings system.">
+  <title>TTCAN Player Ratings</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script type="module" src="/js/index.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="app-shell">
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a class="brand" href="/" aria-label="TTCAN Player Ratings home">
+          <span class="logo-mark" aria-hidden="true">🏓</span>
+          <span>TTCAN Ratings</span>
+        </a>
+        <div class="nav-links">
+          <a href="/docs.html">API Docs</a>
+          <a href="/api/players/search?name=WANG">JSON example</a>
+        </div>
+      </nav>
+
+      <div class="hero-grid">
+        <section>
+          <span class="eyebrow">Canadian table tennis data</span>
+          <h1>Search player ratings, match history, and head-to-head records.</h1>
+          <p class="lede">This frontend calls the live ASP.NET Core API on the same origin. Search by name, open a player, and bookmark the profile URL with <strong>#player-id</strong>.</p>
+        </section>
+
+        <aside class="card search-card" aria-labelledby="search-title">
+          <form class="search-form" id="searchForm" autocomplete="off">
+            <label class="search-label" for="searchInput">
+              <span id="search-title">Find a player</span>
+              <span class="badge primary">300ms debounce</span>
+            </label>
+            <div class="input-wrap">
+              <input class="input search-input" id="searchInput" name="name" type="search" minlength="2" placeholder="Try WANG, LI, CHEN..." aria-describedby="searchHelp" autofocus>
+              <span class="search-icon" aria-hidden="true">⌕</span>
+            </div>
+            <p class="muted" id="searchHelp">Type at least 2 characters. Results are fetched from <code>/api/players/search</code>.</p>
+          </form>
+          <div id="searchStatus" class="muted" role="status" aria-live="polite"></div>
+          <div id="searchResults" class="search-results" aria-label="Search results"></div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section id="emptyState" class="empty-state">
+      <h2>Select a player to get started</h2>
+      <p>Search by surname or full name, then choose a card. The first load for a player may take a second while the backend scrapes and caches TTCAN data.</p>
+    </section>
+
+    <section id="playerPanel" class="card player-panel hidden" aria-labelledby="playerName">
+      <div id="playerLoading" class="loading-overlay" aria-live="polite" aria-busy="true">
+        <div class="loading-box">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Loading player data from TTCAN...</span>
+        </div>
+      </div>
+
+      <header class="player-header">
+        <div>
+          <div class="player-title-row">
+            <h2 id="playerName">Player</h2>
+            <span id="playerRatingBadge" class="badge primary">Rating —</span>
+          </div>
+          <div id="playerMeta" class="player-meta"></div>
+        </div>
+        <div class="nav-links">
+          <button class="btn ghost" type="button" id="copyLinkButton">Copy link</button>
+          <button class="btn primary" type="button" id="refreshButton">Refresh scrape</button>
+        </div>
+      </header>
+
+      <div class="tab-bar" role="tablist" aria-label="Player data tabs">
+        <button class="tab-button" id="overviewTab" type="button" role="tab" aria-selected="true" aria-controls="overviewPanel" data-tab="overview">Overview</button>
+        <button class="tab-button" id="matchesTab" type="button" role="tab" aria-selected="false" aria-controls="matchesPanel" data-tab="matches">Matches</button>
+        <button class="tab-button" id="h2hTab" type="button" role="tab" aria-selected="false" aria-controls="h2hPanel" data-tab="h2h">H2H</button>
+        <button class="tab-button" id="activityTab" type="button" role="tab" aria-selected="false" aria-controls="activityPanel" data-tab="activity">Activity</button>
+      </div>
+
+      <div id="overviewPanel" class="tab-panel active" role="tabpanel" aria-labelledby="overviewTab">
+        <div class="panel-grid">
+          <article class="chart-card">
+            <h3>Rating over time</h3>
+            <p class="muted">Line chart from <code>/api/players/{id}/ratings</code>.</p>
+            <div class="chart-wrap"><canvas id="ratingsChart"></canvas></div>
+          </article>
+          <aside class="chart-card">
+            <h3>Snapshot</h3>
+            <div class="stat-grid" id="snapshotStats"></div>
+          </aside>
+        </div>
+      </div>
+
+      <div id="matchesPanel" class="tab-panel" role="tabpanel" aria-labelledby="matchesTab">
+        <article class="table-card">
+          <h3>Matches</h3>
+          <p class="muted">Period, event, opponent, win/loss badge, ratings, and delta.</p>
+          <div id="matchesTable" class="table-wrap"></div>
+        </article>
+      </div>
+
+      <div id="h2hPanel" class="tab-panel" role="tabpanel" aria-labelledby="h2hTab">
+        <article class="table-card">
+          <div class="player-header" style="padding:0 0 14px; border-bottom:0; background:transparent;">
+            <div>
+              <h3>Head-to-head</h3>
+              <p class="muted">Client-side filter across opponents.</p>
+            </div>
+            <label class="input-wrap" style="min-width:min(320px, 100%);">
+              <span class="hidden">Filter opponents</span>
+              <input id="h2hFilter" class="input" type="search" placeholder="Filter opponent...">
+            </label>
+          </div>
+          <div id="h2hTable" class="table-wrap"></div>
+        </article>
+      </div>
+
+      <div id="activityPanel" class="tab-panel" role="tabpanel" aria-labelledby="activityTab">
+        <article class="chart-card">
+          <h3>Match activity by period</h3>
+          <p class="muted">Bar chart from <code>/api/players/{id}/activity</code>.</p>
+          <div class="chart-wrap"><canvas id="activityChart"></canvas></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer app-shell">
+    <p>Unofficial TTCAN ratings viewer. API responses remain available as raw JSON under <code>/api/players</code>.</p>
+  </footer>
+</body>
+</html>

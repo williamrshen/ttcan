@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Developer reference for the TTCAN players REST API.">
+  <title>TTCAN API Docs</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/docs.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="app-shell">
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a class="brand" href="/" aria-label="TTCAN Player Ratings home">
+          <span class="logo-mark" aria-hidden="true">🏓</span>
+          <span>TTCAN Ratings</span>
+        </a>
+        <div class="nav-links">
+          <a href="/">Player search</a>
+          <a href="/api/players/search?name=WANG">JSON example</a>
+        </div>
+      </nav>
+      <span class="eyebrow">Developer reference</span>
+      <h1>TTCAN Players API</h1>
+      <p class="lede">Live endpoint documentation with request samples, response schemas, copy buttons, and Try It forms against <code id="originLabel"></code>.</p>
+    </div>
+  </header>
+
+  <main class="app-shell docs-layout">
+    <aside class="card docs-sidebar" aria-labelledby="docs-nav-title">
+      <h2 id="docs-nav-title" style="font-size:1.25rem;">Endpoints</h2>
+      <nav id="docsNav" aria-label="Endpoint links"></nav>
+    </aside>
+    <div id="docsContent"></div>
+  </main>
+
+  <footer class="footer app-shell">
+    <p>Static docs are served from <code>/docs.html</code>. API routes under <code>/api/players</code> continue to return raw JSON.</p>
+  </footer>
+</body>
+</html>
