@@ -1,10 +1,23 @@
 # TTCAN API
 
-A small ASP.NET Core (.NET 9) REST API that serves Canadian table tennis (TTCAN)
-player data — rating history, match results, head-to-head records, and activity
-periods. Data is scraped on demand from the public ratings site
-`http://www.ttcan.ca/ratingSystem/` and cached locally as JSON (the source refreshes
-roughly monthly, so repeat requests are served from cache).
+A small ASP.NET Core (.NET 9) REST API with a vanilla JavaScript frontend UI
+for exploring Canadian table tennis (TTCAN) player data — rating history, match
+results, head-to-head records, and activity periods. Data is scraped on demand
+from the public ratings site `http://www.ttcan.ca/ratingSystem/` and cached
+locally as JSON (the source refreshes roughly monthly, so repeat requests are
+served from cache).
+
+## Try it live
+
+Frontend UI: **https://ttcan.onrender.com/**
+
+Open the site, search for a player name such as `WANG`, click a player card, and
+explore the rating chart, match table, head-to-head records, and activity chart
+in your browser. The first request for an uncached player may take a few seconds
+while the backend scrapes fresh data; subsequent requests are served from cache.
+
+Developer docs and live API forms are also available at
+**https://ttcan.onrender.com/docs.html**.
 
 ## Endpoints
 
@@ -27,10 +40,14 @@ expires. Unknown players return `404`; an empty search returns `400`.
 dotnet run --project src/Ttcan.Api
 ```
 
-In development, interactive API docs are served by [Scalar](https://scalar.com) at
-`/scalar/v1`, with the raw OpenAPI document at `/openapi/v1.json`.
+Then open the frontend UI at `http://localhost:<port>/` or the built-in developer
+reference page at `http://localhost:<port>/docs.html`. API routes remain available
+as raw JSON under `/api/players`.
 
-Example:
+In development, interactive API docs are also served by [Scalar](https://scalar.com)
+at `/scalar/v1`, with the raw OpenAPI document at `/openapi/v1.json`.
+
+Example API calls:
 
 ```bash
 curl "http://localhost:<port>/api/players/search?name=WANG%20Eugene"   # -> Player_ID 7864
@@ -43,7 +60,9 @@ The first request for a player hits ttcan.ca and writes
 
 ## Live API
 
-Base URL: `https://ttcan.onrender.com`
+The browser UI is the easiest way to try the project yourself: `https://ttcan.onrender.com/`.
+
+Base API URL: `https://ttcan.onrender.com`
 
 ```bash
 curl "https://ttcan.onrender.com/api/players/search?name=WANG%20Eugene"
@@ -83,6 +102,7 @@ A single Web API project, layered by folder so each concern is isolated:
 
 ```
 src/Ttcan.Api/
+  wwwroot/       # frontend UI: index.html, docs.html, shared CSS, vanilla JS modules
   Models/        # records: PlayerSummary, RatingPoint, Match, HeadToHeadRecord, ActivityPeriod, PlayerProfile
   Scraping/      # ITtcanScraper + TtcanScraper (HtmlAgilityPack parsing, Latin-1 decoding)
   Storage/       # IPlayerStore + JsonPlayerStore (read/write data/players/{id}.json)
