@@ -39,6 +39,7 @@ const elements = {
   matchesTable: $('#matchesTable'),
   h2hTable: $('#h2hTable'),
   h2hFilter: $('#h2hFilter'),
+  ratingsEndpointLabel: $('#ratingsEndpointLabel'),
 };
 
 function debounce(fn, delay = 300) {
@@ -80,6 +81,10 @@ function setLoading(isLoading) {
 function setSearchStatus(html) {
   elements.searchStatus.innerHTML = html;
 }
+function setSearchDropdownOpen(isOpen) {
+  elements.searchResults.classList.toggle('open', isOpen && elements.searchResults.children.length > 0);
+}
+
 
 function showSearchError(error) {
   const message = error instanceof ApiError
@@ -91,12 +96,14 @@ function showSearchError(error) {
 function renderSearchResults(players, query) {
   if (!query) {
     elements.searchResults.innerHTML = '';
+    setSearchDropdownOpen(false);
     setSearchStatus('');
     return;
   }
 
   if (!players.length) {
     elements.searchResults.innerHTML = '';
+    setSearchDropdownOpen(false);
     setSearchStatus(`<p class="empty-state">No players found for <strong>${escapeHtml(query)}</strong>.</p>`);
     return;
   }
@@ -111,6 +118,32 @@ function renderSearchResults(players, query) {
       <span class="badge primary">${number(player.rating)}</span>
     </button>
   `).join('');
+  setSearchDropdownOpen(true);
+}
+
+function collapseSearchResults(selectedName) {
+  if (state.searchAbort) {
+    state.searchAbort.abort();
+    state.searchAbort = null;
+  }
+
+  elements.searchResults.innerHTML = '';
+  setSearchDropdownOpen(false);
+  setSearchStatus(selectedName
+    ? `<p class="muted">Selected <strong>${escapeHtml(selectedName)}</strong>. Search results collapsed.</p>`
+    : '');
+}
+
+function sortRatingsOldestFirst(ratings) {
+  return [...ratings].sort((a, b) => {
+    const periodDifference = (a.periodId ?? 0) - (b.periodId ?? 0);
+    if (periodDifference !== 0) return periodDifference;
+
+    const aTime = Date.parse(a.date ?? '');
+    const bTime = Date.parse(b.date ?? '');
+    if (!Number.isNaN(aTime) && !Number.isNaN(bTime)) return aTime - bTime;
+    return String(a.date ?? '').localeCompare(String(b.date ?? ''));
+  });
 }
 
 const performSearch = debounce(async () => {
@@ -238,6 +271,7 @@ async function renderActivityChart(activity) {
 function renderProfileHeader(profile) {
   elements.playerName.textContent = profile.name;
   elements.playerRatingBadge.textContent = `Rating ${number(profile.latestRating)}`;
+  elements.ratingsEndpointLabel.textContent = `/api/players/${profile.playerId}/ratings`;
 
   const fetched = profile.fetchedAt ? new Date(profile.fetchedAt).toLocaleString() : 'unknown';
   elements.playerMeta.innerHTML = `
@@ -388,17 +422,19 @@ async function loadPlayer(playerId, { refresh = false } = {}) {
       getActivity(playerId),
     ]);
 
+    const ratingsOldestFirst = sortRatingsOldestFirst(ratings);
+
     state.profile = profile;
-    state.ratings = ratings;
+    state.ratings = ratingsOldestFirst;
     state.matches = matches;
     state.h2h = h2h;
     state.activity = activity;
 
-    renderSnapshot(profile, ratings, matches, h2h, activity);
+    renderSnapshot(profile, ratingsOldestFirst, matches, h2h, activity);
     renderMatches(matches);
     filterH2H();
     await Promise.all([
-      renderRatingsChart(ratings),
+      renderRatingsChart(ratingsOldestFirst),
       renderActivityChart(activity),
     ]);
   } catch (error) {
@@ -444,11 +480,24 @@ function updateHash(playerId) {
 function bindEvents() {
   elements.searchForm.addEventListener('submit', (event) => event.preventDefault());
   elements.searchInput.addEventListener('input', performSearch);
+  elements.searchInput.addEventListener('focus', () => setSearchDropdownOpen(true));
+
+  document.addEventListener('click', (event) => {
+    if (!elements.searchForm.contains(event.target) && !elements.searchResults.contains(event.target)) {
+      setSearchDropdownOpen(false);
+    }
+  });
 
   elements.searchResults.addEventListener('click', (event) => {
     const card = event.target.closest('[data-player-id]');
     if (!card) return;
+
+    const selectedName = card.querySelector('.result-title')?.textContent?.trim() ?? '';
+    collapseSearchResults(selectedName);
     updateHash(card.dataset.playerId);
+    window.setTimeout(() => {
+      elements.playerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   });
 
   document.querySelectorAll('[role="tab"][data-tab]').forEach((tab) => {

@@ -208,6 +208,8 @@ h3 {
 }
 
 .search-card {
+  position: relative;
+  z-index: 20;
   padding: 22px;
 }
 
@@ -262,9 +264,29 @@ h3 {
 }
 
 .search-results {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: calc(100% - 18px);
+  z-index: 40;
+  display: none;
+  max-height: min(420px, 56vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.18);
+  padding: 10px;
+}
+
+.search-results.open {
   display: grid;
   gap: 10px;
-  margin-top: 16px;
+}
+
+.search-results:empty {
+  display: none;
 }
 
 .result-card {
@@ -791,5 +813,11 @@ tbody tr:hover {
   .player-header,
   .search-card {
     padding: 16px;
+  }
+
+  .search-results {
+    left: 16px;
+    right: 16px;
+    top: calc(100% - 12px);
   }
 }
