@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">TTCAN Ratings logo</title>
+  <desc id="desc">Red Canadian table tennis logo with a maple leaf, paddle, and ball inside a circle.</desc>
+  <defs>
+    <linearGradient id="paddleGradient" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#d32f2f"/>
+      <stop offset="1" stop-color="#8f1f24"/>
+    </linearGradient>
+    <clipPath id="circleClip">
+      <circle cx="256" cy="256" r="218"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" fill="#ffffff"/>
+  <circle cx="256" cy="256" r="218" fill="none" stroke="#d32f2f" stroke-width="18"/>
+
+  <g clip-path="url(#circleClip)">
+    <!-- Stylized maple leaf backdrop -->
+    <path fill="#d32f2f" d="
+      M256 74
+      L292 151
+      L345 132
+      L329 183
+      L405 181
+      L386 222
+      L453 253
+      L393 291
+      L423 342
+      L350 337
+      L360 399
+      L296 374
+      L256 452
+      L216 374
+      L152 399
+      L162 337
+      L89 342
+      L119 291
+      L59 253
+      L126 222
+      L107 181
+      L183 183
+      L167 132
+      L220 151
+      Z"/>
+
+    <!-- White ring around paddle head, matching the source mark -->
+    <circle cx="256" cy="248" r="96" fill="none" stroke="#ffffff" stroke-width="14"/>
+
+    <!-- Paddle head -->
+    <path fill="url(#paddleGradient)" d="
+      M172 317
+      C150 288 145 245 159 211
+      C174 174 210 150 254 150
+      C311 150 358 197 358 254
+      C358 281 348 306 330 325
+      C323 333 312 337 301 337
+      L194 337
+      C185 337 178 330 172 317
+      Z"/>
+
+    <!-- Paddle handle -->
+    <path fill="url(#paddleGradient)" d="
+      M238 350
+      L274 350
+      L282 464
+      C283 475 276 483 266 483
+      L246 483
+      C236 483 229 475 230 464
+      Z"/>
+
+    <!-- Ball -->
+    <circle cx="301" cy="218" r="25" fill="#ffffff"/>
+
+    <!-- Motion strokes -->
+    <path d="M216 236 C237 206 261 194 297 196" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+    <path d="M198 263 C218 229 247 210 290 207" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+    <path d="M186 288 C205 252 233 227 282 217" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+  </g>
+</svg>
