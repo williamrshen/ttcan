@@ -41,6 +41,33 @@ The first request for a player hits ttcan.ca and writes
 `src/Ttcan.Api/data/players/{id}.json`; subsequent requests are served from that cache
 (default freshness: 30 days).
 
+## Live API
+
+Base URL: `https://ttcan.onrender.com`
+
+```bash
+curl "https://ttcan.onrender.com/api/players/search?name=WANG%20Eugene"
+curl "https://ttcan.onrender.com/api/players/7864/ratings"
+curl "https://ttcan.onrender.com/api/players/7864/head-to-head?opponent=ZHANG"
+curl "https://ttcan.onrender.com/api/players/7864/activity"
+```
+
+> The free Render tier spins down after 15 min of inactivity — the first request after
+> idle takes ~30 s. Subsequent requests are instant.
+
+## Deployment (Render)
+
+The repo includes a `Dockerfile` for hosting on [Render](https://render.com) (free tier,
+no credit card required).
+
+1. Push this repo to GitHub.
+2. On Render: **New → Web Service** → connect the repo.
+3. Render detects the `Dockerfile` automatically. Set **Instance Type** to **Free**.
+4. Click **Deploy Web Service**. The build takes ~2–3 min.
+
+To override the cache directory (e.g. if you add a persistent disk later), set the
+`PlayerStorePath` environment variable in Render's service settings.
+
 ## Tests
 
 ```bash
